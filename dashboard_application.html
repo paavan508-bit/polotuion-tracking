@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satellite Telemetry & AI Assistant Dashboard</title>
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #e2e8f0; }
+        /* Custom scrollbar for chat logs */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex flex-wrap justify-between items-center gap-4 sticky top-0 z-50 shadow-md">
+        <div class="flex items-center space-x-3">
+            <div class="p-2 bg-blue-600/20 text-blue-400 rounded-lg border border-blue-500/30">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V11a2 2 0 012-2h1.065M12 2a10 10 0 100 20 10 10 0 000-20z"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-white tracking-wide">AERO-SENS / GOV-DATA DASHBOARD</h1>
+                <p class="text-xs text-gray-400">Orbital Telemetry & Environmental Intelligence Feed</p>
+            </div>
+        </div>
+
+        <button id="modeToggleBtn" onclick="toggleDashboardMode()" class="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg transition-all shadow-lg hover:shadow-emerald-900/40 cursor-pointer">
+            <span id="toggleIcon">🛰️</span>
+            <span id="toggleLabel">Switch to AI Assistant</span>
+        </button>
+    </header>
+
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
+
+        <section id="satelliteView" class="space-y-6">
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                    <div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2">
+                            ● Live Satellite Telemetry Stream
+                        </span>
+                        <h2 class="text-2xl font-bold text-white">Target Sector: <span id="satTargetDisplay" class="text-blue-400">Global Scan (NOAA-18 / Landsat-9)</span></h2>
+                        <p class="text-sm text-gray-400">Multispectral Band Analysis & Downlink Telemetry Metrics</p>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-gray-800/60 p-2 rounded-lg border border-gray-700">
+                        <span class="text-xs text-gray-400">Uplink Status:</span>
+                        <span class="text-xs font-semibold text-emerald-400">LOCKED (99.8%)</span>
+                    </div>
+                </div>
+
+                <!-- Simulated Satellite Image Render -->
+                <div class="relative w-full h-64 md:h-80 rounded-lg overflow-hidden border border-gray-800 bg-gray-950 flex items-center justify-center mb-6">
+                    <svg class="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                        <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#3b82f6" stroke-width="1"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                    </svg>
+                    <div class="relative z-10 text-center px-4">
+                        <div class="inline-block p-4 rounded-full bg-blue-500/10 border border-blue-500/30 mb-3 animate-pulse">
+                            <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 15a4 4 0 004 4h9a5 5 0 001-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-200">Multispectral Imagery Scan</h3>
+                        <p class="text-xs text-gray-400 mt-1">SWIR / NIR Synthetic Imagery Preview Active</p>
+                    </div>
+                    <div class="absolute bottom-3 left-3 bg-gray-900/80 backdrop-blur text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-300">
+                        Lat/Lon: 37.7749° N, 122.4194° W
+                    </div>
+                </div>
+
+                <!-- Metric Gauge Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-gray-800/40 border border-gray-700/60 p-4 rounded-lg">
+                        <div class="text-xs text-gray-400 font-medium">Cloud Cover Density</div>
+                        <div id="satCloudMetric" class="text-2xl font-bold text-white mt-1">12%</div>
+                        <div class="w-full bg-gray-700 rounded-full h-1.5 mt-3">
+                            <div id="satCloudBar" class="bg-sky-400 h-1.5 rounded-full" style="width: 12%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/40 border border-gray-700/60 p-4 rounded-lg">
+                        <div class="text-xs text-gray-400 font-medium">Vegetation Health (NDVI)</div>
+                        <div id="satNdviMetric" class="text-2xl font-bold text-white mt-1">78%</div>
+                        <div class="w-full bg-gray-700 rounded-full h-1.5 mt-3">
+                            <div id="satNdviBar" class="bg-emerald-400 h-1.5 rounded-full" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/40 border border-gray-700/60 p-4 rounded-lg">
+                        <div class="text-xs text-gray-400 font-medium">Surface Moisture Level</div>
+                        <div id="satMoistureMetric" class="text-2xl font-bold text-white mt-1">64%</div>
+                        <div class="w-full bg-gray-700 rounded-full h-1.5 mt-3">
+                            <div id="satMoistureBar" class="bg-blue-500 h-1.5 rounded-full" style="width: 64%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/40 border border-gray-700/60 p-4 rounded-lg">
+                        <div class="text-xs text-gray-400 font-medium">Thermal Index</div>
+                        <div id="satTempMetric" class="text-2xl font-bold text-white mt-1">21.4 °C</div>
+                        <div class="w-full bg-gray-700 rounded-full h-1.5 mt-3">
+                            <div id="satTempBar" class="bg-amber-400 h-1.5 rounded-full" style="width: 55%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="aiAssistantView" class="hidden space-y-6">
+            <div class="bg-gray-900 border border-gray-800 rounded-xl h-[650px] flex flex-col shadow-2xl overflow-hidden">
+                <div class="bg-gray-800/80 px-6 py-4 border-b border-gray-800 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping"></span>
+                            Gov Data AI Assistant (USGS / NASA / EPA)
+                        </h2>
+                        <p class="text-xs text-gray-400">Contextual Natural Language Processing for Environmental & Satellite Data</p>
+                    </div>
+                    <button onclick="clearChatLogs()" class="text-xs text-gray-400 hover:text-red-400 transition-colors">Clear Chat</button>
+                </div>
+
+                <!-- Chat Log Display Container -->
+                <div id="chatLogs" class="flex-1 p-6 overflow-y-auto space-y-4">
+                    <div class="bg-gray-800/60 border border-gray-700/50 p-4 rounded-lg max-w-2xl">
+                        <p class="text-xs font-semibold text-blue-400 mb-1">AI Assistant</p>
+                        <p class="text-sm text-gray-200">Greetings! I am connected to live satellite feeds and government environmental databases. Ask me about weather, cloud density, vegetation (NDVI), surface moisture, or telemetry for any city or region!</p>
+                    </div>
+                </div>
+
+                <!-- Input Controls -->
+                <div class="p-4 bg-gray-900 border-t border-gray-800 flex gap-3">
+                    <input type="text" id="userInput" placeholder="Ask about climate, vegetation, cloud cover, or a specific region..." onkeypress="handleKey(event)" class="flex-1 bg-gray-950 border border-gray-800 text-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                    <button onclick="sendQuery()" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg text-sm transition-all shadow-md">Send</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-gray-800 py-4 text-center text-xs text-gray-500 bg-gray-950">
+        Interactive Satellite & Open Data Intelligence Dashboard • Powered by Web Standards
+    </footer>
+
+    <script>
+        let isSatelliteViewActive = true;
+
+        // Simulated telemetry database for dynamic contextual responses
+        const mockDatabase = {
+            default: { name: "Global Scan", cloud: 12, ndvi: 78, moisture: 64, temp: "21.4 °C" },
+            hawaii: { name: "Hawaii Sector", cloud: 34, ndvi: 88, moisture: 82, temp: "26.1 °C" },
+            texas: { name: "Texas Sector", cloud: 8, ndvi: 42, moisture: 31, temp: "31.5 °C" },
+            california: { name: "California Sector", cloud: 15, ndvi: 65, moisture: 45, temp: "22.8 °C" },
+            tokyo: { name: "Tokyo Sector", cloud: 55, ndvi: 70, moisture: 75, temp: "18.2 °C" }
+        };
+
+        function toggleDashboardMode() {
+            isSatelliteViewActive = !isSatelliteViewActive;
+            const satView = document.getElementById('satelliteView');
+            const aiView = document.getElementById('aiAssistantView');
+            const toggleIcon = document.getElementById('toggleIcon');
+            const toggleLabel = document.getElementById('toggleLabel');
+
+            if (isSatelliteViewActive) {
+                satView.classList.remove('hidden');
+                aiView.classList.add('hidden');
+                toggleIcon.innerText = "🛰️";
+                toggleLabel.innerText = "Switch to AI Assistant";
+            } else {
+                satView.classList.add('hidden');
+                aiView.classList.remove('hidden');
+                toggleIcon.innerText = "📡";
+                toggleLabel.innerText = "Switch to Live Satellite";
+            }
+        }
+
+        function handleKey(e) {
+            if (e.key === 'Enter') sendQuery();
+        }
+
+        function clearChatLogs() {
+            document.getElementById('chatLogs').innerHTML = `
+                <div class="bg-gray-800/60 border border-gray-700/50 p-4 rounded-lg max-w-2xl">
+                    <p class="text-xs font-semibold text-blue-400 mb-1">AI Assistant</p>
+                    <p class="text-sm text-gray-200">Chat logs cleared. Ask a new query!</p>
+                </div>`;
+        }
+
+        function sendQuery() {
+            const input = document.getElementById('userInput');
+            const logs = document.getElementById('chatLogs');
+            const rawText = input.value.trim();
+            if (!rawText) return;
+
+            // Display user message
+            logs.innerHTML += `
+                <div class="bg-blue-600/20 border border-blue-500/30 p-4 rounded-lg max-w-2xl ml-auto text-right">
+                    <p class="text-xs font-semibold text-blue-300 mb-1">You</p>
+                    <p class="text-sm text-gray-100">${escapeHtml(rawText)}</p>
+                </div>`;
+
+            input.value = '';
+            logs.scrollTop = logs.scrollHeight;
+
+            // Process text dynamically
+            setTimeout(() => {
+                const response = parseAndGenerateAIResponse(rawText);
+                logs.innerHTML += `
+                    <div class="bg-gray-800/60 border border-gray-700/50 p-4 rounded-lg max-w-2xl">
+                        <p class="text-xs font-semibold text-blue-400 mb-1">AI Assistant</p>
+                        <div class="text-sm text-gray-200">${response}</div>
+                    </div>`;
+                logs.scrollTop = logs.scrollHeight;
+            }, 500);
+        }
+
+        function parseAndGenerateAIResponse(text) {
+            const lower = text.toLowerCase();
+
+            // Simple greetings
+            if (/^(hi|hello|hey|greetings)/i.test(lower) && text.length < 10) {
+                return "Hello! I am ready to process orbital telemetry and open environmental datasets. What region or environmental metric would you like to explore?";
+            }
+
+            // Extract location or topic
+            let matchedRegion = mockDatabase.default;
+            if (lower.includes('hawaii') || lower.includes('hi')) matchedRegion = mockDatabase.hawaii;
+            else if (lower.includes('texas')) matchedRegion = mockDatabase.texas;
+            else if (lower.includes('california')) matchedRegion = mockDatabase.california;
+            else if (lower.includes('tokyo')) matchedRegion = mockDatabase.tokyo;
+
+            // Update telemetry view with matched region values
+            updateTelemetryDisplay(matchedRegion);
+
+            let answer = `Telemetry retrieved for <strong class="text-blue-400">${matchedRegion.name}</strong>:<br/><ul class="list-disc ml-5 mt-2 space-y-1 text-xs">`;
+
+            if (lower.includes('cloud') || lower.includes('weather')) {
+                answer += `<li>Cloud Cover Density: <strong>${matchedRegion.cloud}%</strong></li>`;
+            }
+            if (lower.includes('ndvi') || lower.includes('vegetation') || lower.includes('plant')) {
+                answer += `<li>Vegetation Health Index (NDVI): <strong>${matchedRegion.ndvi}%</strong></li>`;
+            }
+            if (lower.includes('moisture') || lower.includes('water')) {
+                answer += `<li>Surface Moisture Level: <strong>${matchedRegion.moisture}%</strong></li>`;
+            }
+            if (lower.includes('temp') || lower.includes('temperature') || lower.includes('heat')) {
+                answer += `<li>Surface Thermal Reading: <strong>${matchedRegion.temp}</strong></li>`;
+            }
+
+            // Default full metric display if general question
+            if (!lower.includes('cloud') && !lower.includes('ndvi') && !lower.includes('vegetation') && !lower.includes('moisture') && !lower.includes('temp')) {
+                answer += `
+                    <li>Cloud Cover Density: <strong>${matchedRegion.cloud}%</strong></li>
+                    <li>Vegetation Index (NDVI): <strong>${matchedRegion.ndvi}%</strong></li>
+                    <li>Surface Moisture Level: <strong>${matchedRegion.moisture}%</strong></li>
+                    <li>Thermal Reading: <strong>${matchedRegion.temp}</strong></li>`;
+            }
+
+            answer += `</ul><p class="mt-2 text-xs text-gray-400">Live Satellite Telemetry gauges updated in Satellite View.</p>`;
+            return answer;
+        }
+
+        function updateTelemetryDisplay(data) {
+            document.getElementById('satTargetDisplay').innerText = data.name;
+            document.getElementById('satCloudMetric').innerText = `${data.cloud}%`;
+            document.getElementById('satCloudBar').style.width = `${data.cloud}%`;
+
+            document.getElementById('satNdviMetric').innerText = `${data.ndvi}%`;
+            document.getElementById('satNdviBar').style.width = `${data.ndvi}%`;
+
+            document.getElementById('satMoistureMetric').innerText = `${data.moisture}%`;
+            document.getElementById('satMoistureBar').style.width = `${data.moisture}%`;
+
+            document.getElementById('satTempMetric').innerText = data.temp;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
